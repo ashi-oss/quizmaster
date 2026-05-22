@@ -1,0 +1,29 @@
+[
+  {
+    "category": "COAL",
+    "description": "COAL subject sample",
+    "quizzes": [
+      {
+        "title": "COAL Basics",
+        "description": "Sample COAL quiz",
+        "duration": 20,
+        "total_marks": 10,
+        "questions": [
+          { "text": "What does COAL stand for?", "a": "Compute Over A Link", "b": "Cloud Oriented Architecture Layer", "c": "Course Of Action List", "d": "None", "correct": "b" },
+          { "text": "Which tool is used in COAL workflows?", "a": "Tool A", "b": "Tool B", "c": "Tool C", "d": "Tool D", "correct": "a" }
+        ]
+      }
+    ]
+  },
+  {
+    "category": "DBS",
+    "quizzes": [
+      {
+        "title": "DBS Essentials",
+        "questions": [
+          { "text": "Which is a relational DB?", "a": "MongoDB", "b": "PostgreSQL", "c": "Redis", "d": "Elasticsearch", "correct": "b" }
+        ]
+      }
+    ]
+  }
+]

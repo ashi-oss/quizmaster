@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>QuizMaster — Create Quiz</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    :root { --primary: #4f46e5; --accent: #7c3aed; --success: #10b981; --danger: #ef4444; --gray-50: #f9fafb; --gray-100: #f3f4f6; --gray-200: #e5e7eb; --gray-400: #9ca3af; --gray-600: #4b5563; --gray-900: #111827; --sidebar: #1e1b4b; }
+    body { font-family: 'Inter', sans-serif; background: var(--gray-100); display: flex; min-height: 100vh; }
+    .sidebar { width: 260px; background: var(--sidebar); display: flex; flex-direction: column; padding: 0; position: fixed; height: 100vh; }
+    .sidebar-brand { padding: 28px 24px; border-bottom: 1px solid rgba(255,255,255,0.08); }
+    .sidebar-brand h2 { color: white; font-size: 22px; font-weight: 800; }
+    .sidebar-brand p { color: rgba(255,255,255,0.4); font-size: 12px; margin-top: 2px; }
+    .sidebar-nav { padding: 20px 12px; flex: 1; }
+    .nav-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: rgba(255,255,255,0.3); padding: 0 12px; margin-bottom: 8px; margin-top: 16px; }
+    .nav-item { display: flex; align-items: center; gap: 12px; padding: 12px 16px; border-radius: 10px; color: rgba(255,255,255,0.6); text-decoration: none; font-size: 14px; font-weight: 500; transition: all 0.2s; margin-bottom: 4px; cursor: pointer; }
+    .nav-item:hover { background: rgba(255,255,255,0.08); color: white; }
+    .nav-item.active { background: var(--primary); color: white; }
+    .nav-item i { width: 20px; text-align: center; }
+    .sidebar-footer { padding: 20px; border-top: 1px solid rgba(255,255,255,0.08); }
+    .logout-btn { width: 100%; padding: 10px; background: rgba(239,68,68,0.15); color: #fca5a5; border: 1px solid rgba(239,68,68,0.2); border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; font-family: 'Inter', sans-serif; }
+    .main { margin-left: 260px; flex: 1; padding: 32px; }
+    .topbar { margin-bottom: 28px; }
+    .topbar h1 { font-size: 24px; font-weight: 700; color: var(--gray-900); }
+    .topbar p { color: var(--gray-400); font-size: 14px; margin-top: 4px; }
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; align-items: start; }
+    .card { background: white; border-radius: 16px; padding: 28px; box-shadow: 0 1px 3px rgba(0,0,0,0.06); }
+    .card h3 { font-size: 16px; font-weight: 700; color: var(--gray-900); margin-bottom: 20px; display: flex; align-items: center; gap: 8px; }
+    .card h3 i { color: var(--primary); }
+    .form-group { margin-bottom: 18px; }
+    .form-group label { display: block; font-size: 13px; font-weight: 600; color: var(--gray-600); margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px; }
+    .form-group input, .form-group textarea, .form-group select { width: 100%; padding: 12px 16px; border: 2px solid var(--gray-200); border-radius: 10px; font-size: 14px; font-family: 'Inter', sans-serif; color: var(--gray-900); background: var(--gray-50); outline: none; transition: all 0.2s; }
+    .form-group input:focus, .form-group textarea:focus, .form-group select:focus { border-color: var(--primary); background: white; box-shadow: 0 0 0 4px rgba(79,70,229,0.08); }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .btn { padding: 12px 20px; border-radius: 10px; font-size: 14px; font-weight: 600; cursor: pointer; border: none; font-family: 'Inter', sans-serif; display: inline-flex; align-items: center; gap: 8px; transition: all 0.2s; }
+    .btn-primary { background: linear-gradient(135deg, var(--primary), var(--accent)); color: white; width: 100%; justify-content: center; }
+    .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(79,70,229,0.35); }
+    .btn-outline { background: white; color: var(--primary); border: 2px solid var(--primary); width: 100%; justify-content: center; margin-top: 10px; }
+    .btn-outline:hover { background: var(--gray-50); }
+    .question-card { background: var(--gray-50); border-radius: 12px; padding: 20px; margin-bottom: 16px; border: 1px solid var(--gray-200); position: relative; }
+    .question-card h4 { font-size: 13px; font-weight: 700; color: var(--primary); margin-bottom: 14px; }
+    .options-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 12px 0; }
+    .option-input { display: flex; align-items: center; gap: 8px; }
+    .option-label { width: 24px; height: 24px; border-radius: 6px; background: var(--primary); color: white; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; flex-shrink: 0; }
+    .option-input input { flex: 1; padding: 9px 12px; border: 2px solid var(--gray-200); border-radius: 8px; font-size: 13px; font-family: 'Inter', sans-serif; outline: none; background: white; }
+    .option-input input:focus { border-color: var(--primary); }
+    .correct-select { width: 100%; padding: 9px 12px; border: 2px solid var(--gray-200); border-radius: 8px; font-size: 13px; font-family: 'Inter', sans-serif; outline: none; background: white; margin-top: 8px; }
+    .remove-btn { position: absolute; top: 16px; right: 16px; background: #fef2f2; color: var(--danger); border: none; border-radius: 6px; width: 28px; height: 28px; cursor: pointer; font-size: 12px; }
+    .alert { padding: 12px 16px; border-radius: 10px; font-size: 14px; font-weight: 500; margin-bottom: 16px; display: none; align-items: center; gap: 10px; }
+    .alert.error { background: #fef2f2; color: var(--danger); border: 1px solid #fecaca; display: flex; }
+    .alert.success { background: #f0fdf4; color: var(--success); border: 1px solid #bbf7d0; display: flex; }
+    .step-indicator { display: flex; align-items: center; gap: 12px; margin-bottom: 28px; }
+    .step { display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 600; }
+    .step-num { width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; }
+    .step.done .step-num { background: var(--success); color: white; }
+    .step.active .step-num { background: var(--primary); color: white; }
+    .step.pending .step-num { background: var(--gray-200); color: var(--gray-400); }
+    .step.active span { color: var(--gray-900); }
+    .step.pending span { color: var(--gray-400); }
+    .step-divider { flex: 1; height: 2px; background: var(--gray-200); border-radius: 2px; }
+  </style>
+</head>
+<body>
+  <div class="sidebar">
+    <div class="sidebar-brand"><h2>⚡ QuizMaster</h2><p>Admin Panel</p></div>
+    <nav class="sidebar-nav">
+      <div class="nav-label">Main</div>
+      <a href="dashboard.html" class="nav-item"><i class="fas fa-home"></i> Dashboard</a>
+      <div class="nav-item active"><i class="fas fa-plus-circle"></i> Create Quiz</div>
+      <a href="results.html" class="nav-item"><i class="fas fa-chart-bar"></i> All Results</a>
+    </nav>
+    <div class="sidebar-footer">
+      <button class="logout-btn" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Logout</button>
+    </div>
+  </div>
+
+  <main class="main">
+    <div class="topbar">
+      <h1>Create New Quiz</h1>
+      <p>Fill in quiz details then add questions</p>
+    </div>
+
+    <div class="step-indicator">
+      <div class="step active" id="step1"><div class="step-num">1</div><span>Quiz Details</span></div>
+      <div class="step-divider"></div>
+      <div class="step pending" id="step2"><div class="step-num">2</div><span>Add Questions</span></div>
+    </div>
+
+    <div class="alert" id="alert"><i class="fas fa-exclamation-circle"></i><span id="alert-text"></span></div>
+
+    <div class="grid-2">
+      <!-- Quiz Details -->
+      <div class="card">
+        <h3><i class="fas fa-info-circle"></i> Quiz Details</h3>
+        <div class="form-group">
+          <label>Quiz Title</label>
+          <input type="text" id="title" placeholder="e.g. Mathematics Final Exam" />
+        </div>
+        <div class="form-group">
+          <label>Description</label>
+          <textarea id="description" rows="3" placeholder="Brief description of this quiz..."></textarea>
+        </div>
+        <div class="form-group">
+          <label>Subject</label>
+          <select id="category" class="correct-select">
+            <option value="">Loading subjects...</option>
+          </select>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Duration (minutes)</label>
+            <input type="number" id="duration" value="15" min="1" />
+          </div>
+          <div class="form-group">
+            <label>Total Marks</label>
+            <input type="number" id="total_marks" value="10" min="1" />
+          </div>
+        </div>
+        <button class="btn btn-primary" id="create-btn" onclick="createQuiz()">
+          <i class="fas fa-save"></i> Save Quiz & Add Questions
+        </button>
+      </div>
+
+      <!-- Questions Panel -->
+      <div class="card">
+        <h3><i class="fas fa-question-circle"></i> Questions <span id="q-count" style="color:var(--gray-400);font-weight:500;font-size:13px"></span></h3>
+        <div id="questions-container">
+          <div style="text-align:center;padding:40px;color:var(--gray-400)">
+            <i class="fas fa-arrow-left" style="font-size:24px;margin-bottom:12px;display:block;opacity:0.4"></i>
+            <p style="font-size:14px">Save quiz details first to start adding questions</p>
+          </div>
+        </div>
+        <div id="add-question-panel" style="display:none">
+          <div id="question-form" class="question-card">
+            <h4>New Question</h4>
+            <div class="form-group" style="margin-bottom:12px">
+              <input type="text" id="q-text" placeholder="Enter your question here..." />
+            </div>
+            <div class="options-grid">
+              <div class="option-input"><div class="option-label">A</div><input type="text" id="opt-a" placeholder="Option A" /></div>
+              <div class="option-input"><div class="option-label">B</div><input type="text" id="opt-b" placeholder="Option B" /></div>
+              <div class="option-input"><div class="option-label">C</div><input type="text" id="opt-c" placeholder="Option C" /></div>
+              <div class="option-input"><div class="option-label">D</div><input type="text" id="opt-d" placeholder="Option D" /></div>
+            </div>
+            <select class="correct-select" id="correct">
+              <option value="">-- Select correct answer --</option>
+              <option value="a">A is correct</option>
+              <option value="b">B is correct</option>
+              <option value="c">C is correct</option>
+              <option value="d">D is correct</option>
+            </select>
+          </div>
+          <button class="btn btn-primary" onclick="addQuestion()"><i class="fas fa-plus"></i> Add Question</button>
+          <a href="dashboard.html" class="btn btn-outline" style="margin-top:10px;display:flex"><i class="fas fa-check"></i> Done — Go to Dashboard</a>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    const token = localStorage.getItem('token');
+    const user = JSON.parse(localStorage.getItem('user') || '{}');
+    if (!token || user.role !== 'admin') window.location.href = '/login.html';
+
+    let currentQuizId = null;
+    let questionCount = 0;
+
+    loadCategories();
+
+    function showAlert(msg, type) {
+      const el = document.getElementById('alert');
+      el.className = `alert ${type}`;
+      document.getElementById('alert-text').textContent = msg;
+      el.style.display = 'flex';
+      setTimeout(() => el.style.display = 'none', 4000);
+    }
+
+    async function loadCategories() {
+      try {
+        const res = await fetch('/api/quiz/categories', { headers: { 'Authorization': token } });
+        const categories = await res.json();
+        const select = document.getElementById('category');
+        if (!categories.length) {
+          select.innerHTML = '<option value="">No subjects found</option>';
+          return;
+        }
+        select.innerHTML = categories.map(cat => `<option value="${cat.id}">${cat.name}</option>`).join('');
+      } catch (err) {
+        document.getElementById('category').innerHTML = '<option value="">Unable to load subjects</option>';
+      }
+    }
+
+    async function createQuiz() {
+      const title = document.getElementById('title').value.trim();
+      const description = document.getElementById('description').value.trim();
+      const category = document.getElementById('category').value;
+      const duration = document.getElementById('duration').value;
+      const total_marks = document.getElementById('total_marks').value;
+
+      if (!title) { showAlert('Please enter a quiz title.', 'error'); return; }
+      if (!category) { showAlert('Please select a subject.', 'error'); return; }
+
+      const btn = document.getElementById('create-btn');
+      btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
+      btn.style.opacity = '0.8'; btn.style.pointerEvents = 'none';
+
+      try {
+        const res = await fetch('/api/quiz/create', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': token },
+          body: JSON.stringify({ title, description, category_id: parseInt(category), duration_minutes: parseInt(duration), total_marks: parseInt(total_marks) })
+        });
+        const data = await res.json();
+        if (res.ok) {
+          currentQuizId = data.quizId;
+          showAlert('Quiz created! Now add questions.', 'success');
+          document.getElementById('add-question-panel').style.display = 'block';
+          document.getElementById('questions-container').innerHTML = '<div id="added-questions"></div>';
+          document.getElementById('step1').className = 'step done';
+          document.getElementById('step2').className = 'step active';
+          btn.innerHTML = '<i class="fas fa-check"></i> Quiz Saved!';
+          btn.style.background = '#10b981';
+        } else {
+          showAlert(data.message || 'Error creating quiz', 'error');
+          btn.innerHTML = '<i class="fas fa-save"></i> Save Quiz & Add Questions';
+          btn.style.opacity = '1'; btn.style.pointerEvents = 'auto';
+        }
+      } catch (err) {
+        showAlert('Server error.', 'error');
+        btn.innerHTML = '<i class="fas fa-save"></i> Save Quiz & Add Questions';
+        btn.style.opacity = '1'; btn.style.pointerEvents = 'auto';
+      }
+    }
+
+    async function addQuestion() {
+      const q = document.getElementById('q-text').value.trim();
+      const a = document.getElementById('opt-a').value.trim();
+      const b = document.getElementById('opt-b').value.trim();
+      const c = document.getElementById('opt-c').value.trim();
+      const d = document.getElementById('opt-d').value.trim();
+      const correct = document.getElementById('correct').value;
+
+      if (!q || !a || !b || !c || !d || !correct) { showAlert('Please fill all question fields.', 'error'); return; }
+
+      try {
+        const res = await fetch('/api/quiz/add-question', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': token },
+          body: JSON.stringify({ quiz_id: currentQuizId, question_text: q, option_a: a, option_b: b, option_c: c, option_d: d, correct_option: correct, marks: 1 })
+        });
+        const data = await res.json();
+        if (res.ok) {
+          questionCount++;
+          document.getElementById('q-count').textContent = `(${questionCount} added)`;
+          const container = document.getElementById('added-questions');
+          container.innerHTML += `
+            <div class="question-card" style="margin-bottom:10px">
+              <h4>Q${questionCount}. ${q}</h4>
+              <p style="font-size:12px;color:var(--gray-400)">Correct: <strong style="color:var(--success)">${correct.toUpperCase()}</strong></p>
+            </div>`;
+          ['q-text','opt-a','opt-b','opt-c','opt-d'].forEach(id => document.getElementById(id).value = '');
+          document.getElementById('correct').value = '';
+          showAlert('Question added!', 'success');
+        } else { showAlert(data.message || 'Error adding question', 'error'); }
+      } catch (err) { showAlert('Server error.', 'error'); }
+    }
+
+    function logout() { localStorage.clear(); window.location.href = '/login.html'; }
+  </script>
+</body>
+</html>

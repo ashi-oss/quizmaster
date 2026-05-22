@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>QuizMaster — All Results</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    :root { --primary: #4f46e5; --accent: #7c3aed; --success: #10b981; --danger: #ef4444; --warning: #f59e0b; --gray-50: #f9fafb; --gray-100: #f3f4f6; --gray-200: #e5e7eb; --gray-400: #9ca3af; --gray-600: #4b5563; --gray-900: #111827; --sidebar: #1e1b4b; }
+    body { font-family: 'Inter', sans-serif; background: var(--gray-100); display: flex; min-height: 100vh; }
+    .sidebar { width: 260px; background: var(--sidebar); display: flex; flex-direction: column; position: fixed; height: 100vh; }
+    .sidebar-brand { padding: 28px 24px; border-bottom: 1px solid rgba(255,255,255,0.08); }
+    .sidebar-brand h2 { color: white; font-size: 22px; font-weight: 800; }
+    .sidebar-brand p { color: rgba(255,255,255,0.4); font-size: 12px; }
+    .sidebar-nav { padding: 20px 12px; flex: 1; }
+    .nav-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: rgba(255,255,255,0.3); padding: 0 12px; margin-bottom: 8px; margin-top: 16px; }
+    .nav-item { display: flex; align-items: center; gap: 12px; padding: 12px 16px; border-radius: 10px; color: rgba(255,255,255,0.6); text-decoration: none; font-size: 14px; font-weight: 500; transition: all 0.2s; margin-bottom: 4px; cursor: pointer; }
+    .nav-item:hover { background: rgba(255,255,255,0.08); color: white; }
+    .nav-item.active { background: var(--primary); color: white; }
+    .nav-item i { width: 20px; text-align: center; }
+    .sidebar-footer { padding: 20px; border-top: 1px solid rgba(255,255,255,0.08); }
+    .logout-btn { width: 100%; padding: 10px; background: rgba(239,68,68,0.15); color: #fca5a5; border: 1px solid rgba(239,68,68,0.2); border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; font-family: 'Inter', sans-serif; }
+    .main { margin-left: 260px; flex: 1; padding: 32px; }
+    .topbar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 28px; }
+    .topbar h1 { font-size: 24px; font-weight: 700; color: var(--gray-900); }
+    .topbar p { color: var(--gray-400); font-size: 14px; margin-top: 2px; }
+    .card { background: white; border-radius: 16px; padding: 24px; box-shadow: 0 1px 3px rgba(0,0,0,0.06); }
+    .search-bar { display: flex; gap: 12px; margin-bottom: 24px; }
+    .search-input { flex: 1; padding: 11px 16px 11px 40px; border: 2px solid var(--gray-200); border-radius: 10px; font-size: 14px; font-family: 'Inter', sans-serif; outline: none; background: var(--gray-50); position: relative; }
+    .search-wrapper { position: relative; flex: 1; }
+    .search-wrapper i { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: var(--gray-400); }
+    .search-input:focus { border-color: var(--primary); background: white; }
+    table { width: 100%; border-collapse: collapse; }
+    th { text-align: left; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: var(--gray-400); padding: 12px 16px; border-bottom: 2px solid var(--gray-100); }
+    td { padding: 14px 16px; border-bottom: 1px solid var(--gray-100); font-size: 14px; color: var(--gray-600); }
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: var(--gray-50); }
+    .student-cell { display: flex; align-items: center; gap: 10px; }
+    .avatar { width: 34px; height: 34px; border-radius: 8px; background: #ede9fe; color: var(--primary); display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 13px; flex-shrink: 0; }
+    .student-name { font-weight: 600; color: var(--gray-900); }
+    .score-pill { display: inline-flex; align-items: center; gap: 6px; padding: 4px 12px; border-radius: 20px; font-size: 13px; font-weight: 700; }
+    .score-high { background: #d1fae5; color: #065f46; }
+    .score-mid { background: #fef3c7; color: #92400e; }
+    .score-low { background: #fef2f2; color: #991b1b; }
+    .empty-state { text-align: center; padding: 60px; color: var(--gray-400); }
+    .empty-state i { font-size: 48px; margin-bottom: 16px; display: block; opacity: 0.3; }
+    .loading { text-align: center; padding: 40px; color: var(--gray-400); }
+  </style>
+</head>
+<body>
+  <div class="sidebar">
+    <div class="sidebar-brand"><h2>⚡ QuizMaster</h2><p>Admin Panel</p></div>
+    <nav class="sidebar-nav">
+      <div class="nav-label">Main</div>
+      <a href="dashboard.html" class="nav-item"><i class="fas fa-home"></i> Dashboard</a>
+      <a href="create-quiz.html" class="nav-item"><i class="fas fa-plus-circle"></i> Create Quiz</a>
+      <div class="nav-item active"><i class="fas fa-chart-bar"></i> All Results</div>
+    </nav>
+    <div class="sidebar-footer">
+      <button class="logout-btn" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Logout</button>
+    </div>
+  </div>
+
+  <main class="main">
+    <div class="topbar">
+      <div><h1>All Results</h1><p id="result-count">Loading...</p></div>
+    </div>
+    <div class="card">
+      <div class="search-bar">
+        <div class="search-wrapper">
+          <i class="fas fa-search"></i>
+          <input class="search-input" type="text" id="search" placeholder="Search by student or quiz..." oninput="filterResults()" />
+        </div>
+      </div>
+      <div id="table-container"><div class="loading"><i class="fas fa-spinner fa-spin"></i> Loading results...</div></div>
+    </div>
+  </main>
+
+  <script>
+    const token = localStorage.getItem('token');
+    const user = JSON.parse(localStorage.getItem('user') || '{}');
+    if (!token || user.role !== 'admin') window.location.href = '/login.html';
+
+    let allResults = [];
+
+    function getScoreClass(score, total) {
+      const pct = (score / total) * 100;
+      if (pct >= 70) return 'score-high';
+      if (pct >= 40) return 'score-mid';
+      return 'score-low';
+    }
+
+    function renderTable(results) {
+      const container = document.getElementById('table-container');
+      if (!results.length) {
+        container.innerHTML = '<div class="empty-state"><i class="fas fa-chart-bar"></i><p>No results found</p></div>';
+        return;
+      }
+      container.innerHTML = `
+        <table>
+          <thead><tr><th>Student</th><th>Quiz</th><th>Score</th><th>Percentage</th><th>Date</th></tr></thead>
+          <tbody>
+            ${results.map(r => {
+              const pct = ((r.score / r.total_marks) * 100).toFixed(1);
+              const cls = getScoreClass(r.score, r.total_marks);
+              const date = new Date(r.submitted_at).toLocaleDateString('en-PK', { day: 'numeric', month: 'short', year: 'numeric' });
+              return `<tr>
+                <td><div class="student-cell"><div class="avatar">${(r.student_name||'S')[0].toUpperCase()}</div><span class="student-name">${r.student_name}</span></div></td>
+                <td>${r.quiz_title}</td>
+                <td><span class="score-pill ${cls}">${r.score} / ${r.total_marks}</span></td>
+                <td><span class="score-pill ${cls}">${pct}%</span></td>
+                <td>${date}</td>
+              </tr>`;
+            }).join('')}
+          </tbody>
+        </table>`;
+    }
+
+    function filterResults() {
+      const q = document.getElementById('search').value.toLowerCase();
+      const filtered = allResults.filter(r =>
+        (r.student_name || '').toLowerCase().includes(q) ||
+        (r.quiz_title || '').toLowerCase().includes(q)
+      );
+      renderTable(filtered);
+    }
+
+    async function loadResults() {
+      try {
+        const res = await fetch('/api/results/all', { headers: { 'Authorization': token } });
+        allResults = await res.json();
+        document.getElementById('result-count').textContent = `${allResults.length} total submissions`;
+        renderTable(allResults);
+      } catch (err) {
+        document.getElementById('table-container').innerHTML = '<div class="empty-state"><i class="fas fa-exclamation-circle"></i><p>Failed to load results</p></div>';
+      }
+    }
+
+    function logout() { localStorage.clear(); window.location.href = '/login.html'; }
+    loadResults();
+  </script>
+</body>
+</html>

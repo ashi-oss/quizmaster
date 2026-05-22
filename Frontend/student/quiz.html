@@ -1,0 +1,888 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>QuizMaster — Attempt Quiz</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" />
+  <style>
+    *,
+    *::before,
+    *::after {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --primary: #4f46e5;
+      --accent: #7c3aed;
+      --success: #10b981;
+      --danger: #ef4444;
+      --warning: #f59e0b;
+      --gray-50: #f9fafb;
+      --gray-100: #f3f4f6;
+      --gray-200: #e5e7eb;
+      --gray-400: #9ca3af;
+      --gray-600: #4b5563;
+      --gray-900: #111827;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--gray-100);
+      min-height: 100vh;
+    }
+
+    /* TOPBAR */
+    .topbar {
+      background: white;
+      padding: 16px 32px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+
+    .topbar h2 {
+      font-size: 17px;
+      font-weight: 700;
+      color: var(--gray-900);
+    }
+
+    .topbar-right {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .q-counter {
+      font-size: 13px;
+      color: var(--gray-400);
+      font-weight: 500;
+    }
+
+    /* ANIMATED TIMER */
+    .timer-wrap {
+      position: relative;
+      width: 80px;
+      height: 80px;
+    }
+
+    .timer-svg {
+      transform: rotate(-90deg);
+    }
+
+    .timer-bg {
+      fill: none;
+      stroke: #f3f4f6;
+      stroke-width: 6;
+    }
+
+    .timer-fill {
+      fill: none;
+      stroke: var(--primary);
+      stroke-width: 6;
+      stroke-linecap: round;
+      transition: stroke-dashoffset 1s linear, stroke 0.5s;
+    }
+
+    .timer-text {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .timer-text span {
+      font-size: 16px;
+      font-weight: 800;
+      color: var(--gray-900);
+      line-height: 1;
+    }
+
+    .timer-text small {
+      font-size: 9px;
+      color: var(--gray-400);
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+
+    .timer-wrap.warning .timer-fill {
+      stroke: var(--danger);
+    }
+
+    .timer-wrap.warning .timer-text span {
+      color: var(--danger);
+      animation: shake 0.5s infinite;
+    }
+
+    @keyframes shake {
+
+      0%,
+      100% {
+        transform: translateX(0)
+      }
+
+      25% {
+        transform: translateX(-2px)
+      }
+
+      75% {
+        transform: translateX(2px)
+      }
+    }
+
+    /* PROGRESS */
+    .progress-bar {
+      height: 3px;
+      background: var(--gray-200);
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--primary), var(--accent));
+      transition: width 0.4s ease;
+    }
+
+    /* MAIN */
+    .container {
+      max-width: 760px;
+      margin: 28px auto;
+      padding: 0 20px;
+    }
+
+    /* QUESTION NAV */
+    .q-nav {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 20px;
+      padding: 16px 20px;
+      background: white;
+      border-radius: 14px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+    }
+
+    .q-btn {
+      width: 38px;
+      height: 38px;
+      border-radius: 8px;
+      border: 2px solid var(--gray-200);
+      background: white;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      font-family: 'Inter', sans-serif;
+      color: var(--gray-400);
+      transition: all 0.2s;
+    }
+
+    .q-btn.answered {
+      background: var(--primary);
+      border-color: var(--primary);
+      color: white;
+    }
+
+    .q-btn.current {
+      border-color: var(--primary);
+      color: var(--primary);
+      background: #ede9fe;
+    }
+
+    .q-btn.answered.current {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: white;
+    }
+
+    /* QUESTION CARD */
+    .question-card {
+      background: white;
+      border-radius: 20px;
+      padding: 36px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+      margin-bottom: 20px;
+      animation: slideIn 0.35s ease;
+    }
+
+    @keyframes slideIn {
+      from {
+        opacity: 0;
+        transform: translateX(20px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateX(0);
+      }
+    }
+
+    .q-header {
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+      margin-bottom: 28px;
+    }
+
+    .q-num-badge {
+      min-width: 44px;
+      height: 44px;
+      background: linear-gradient(135deg, var(--primary), var(--accent));
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: 800;
+      font-size: 15px;
+      flex-shrink: 0;
+    }
+
+    .q-text {
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--gray-900);
+      line-height: 1.5;
+      padding-top: 8px;
+    }
+
+    .options {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .option {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 16px 20px;
+      border: 2px solid var(--gray-200);
+      border-radius: 14px;
+      cursor: pointer;
+      transition: all 0.2s;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .option::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, var(--primary), var(--accent));
+      opacity: 0;
+      transition: opacity 0.2s;
+    }
+
+    .option:hover {
+      border-color: var(--primary);
+      transform: translateX(4px);
+    }
+
+    .option.selected {
+      border-color: var(--primary);
+      background: linear-gradient(135deg, rgba(79, 70, 229, 0.08), rgba(124, 58, 237, 0.08));
+    }
+
+    .option.selected .opt-letter {
+      background: linear-gradient(135deg, var(--primary), var(--accent));
+      color: white;
+      transform: scale(1.1);
+    }
+
+    .opt-letter {
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      background: var(--gray-100);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 14px;
+      color: var(--gray-600);
+      flex-shrink: 0;
+      transition: all 0.2s;
+      z-index: 1;
+    }
+
+    .opt-text {
+      font-size: 15px;
+      color: var(--gray-700);
+      font-weight: 500;
+      z-index: 1;
+    }
+
+    /* CORRECT/WRONG for review */
+    .option.correct {
+      border-color: var(--success);
+      background: rgba(16, 185, 129, 0.08);
+    }
+
+    .option.correct .opt-letter {
+      background: var(--success);
+      color: white;
+    }
+
+    .option.wrong {
+      border-color: var(--danger);
+      background: rgba(239, 68, 68, 0.08);
+    }
+
+    .option.wrong .opt-letter {
+      background: var(--danger);
+      color: white;
+    }
+
+    /* NAV BUTTONS */
+    .nav-btns {
+      display: flex;
+      gap: 12px;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .btn {
+      padding: 13px 24px;
+      border-radius: 12px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      font-family: 'Inter', sans-serif;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.2s;
+    }
+
+    .btn-outline {
+      background: white;
+      color: var(--primary);
+      border: 2px solid var(--primary);
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--primary), var(--accent));
+      color: white;
+    }
+
+    .btn-success {
+      background: linear-gradient(135deg, var(--success), #059669);
+      color: white;
+    }
+
+    .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
+    }
+
+    /* RESULT OVERLAY */
+    .overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.6);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 200;
+      backdrop-filter: blur(8px);
+    }
+
+    .overlay.show {
+      display: flex;
+      animation: fadeIn 0.3s ease;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0
+      }
+
+      to {
+        opacity: 1
+      }
+    }
+
+    .result-modal {
+      background: white;
+      border-radius: 28px;
+      padding: 0;
+      max-width: 500px;
+      width: 92%;
+      overflow: hidden;
+      animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    @keyframes popIn {
+      from {
+        opacity: 0;
+        transform: scale(0.8)
+      }
+
+      to {
+        opacity: 1;
+        transform: scale(1)
+      }
+    }
+
+    .result-top {
+      padding: 44px 40px 32px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .result-top::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, var(--primary), var(--accent));
+      opacity: 0.06;
+    }
+
+    .result-emoji {
+      font-size: 72px;
+      margin-bottom: 8px;
+      animation: bounce 0.8s ease 0.3s both;
+    }
+
+    @keyframes bounce {
+      0% {
+        transform: scale(0)
+      }
+
+      60% {
+        transform: scale(1.2)
+      }
+
+      100% {
+        transform: scale(1)
+      }
+    }
+
+    .result-top h2 {
+      font-size: 26px;
+      font-weight: 800;
+      color: var(--gray-900);
+      margin-bottom: 6px;
+    }
+
+    .result-top p {
+      color: var(--gray-400);
+      font-size: 15px;
+    }
+
+    .score-ring {
+      margin: 24px auto 0;
+      width: 140px;
+      height: 140px;
+      position: relative;
+    }
+
+    .score-ring svg {
+      transform: rotate(-90deg);
+    }
+
+    .ring-bg {
+      fill: none;
+      stroke: var(--gray-200);
+      stroke-width: 10;
+    }
+
+    .ring-fill {
+      fill: none;
+      stroke: url(#scoreGrad);
+      stroke-width: 10;
+      stroke-linecap: round;
+      transition: stroke-dashoffset 1.5s cubic-bezier(0.4, 0, 0.2, 1) 0.5s;
+    }
+
+    .ring-text {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .ring-text h3 {
+      font-size: 32px;
+      font-weight: 900;
+      color: var(--gray-900);
+      line-height: 1;
+    }
+
+    .ring-text small {
+      font-size: 13px;
+      color: var(--gray-400);
+    }
+
+    .result-bottom {
+      padding: 24px 32px 32px;
+    }
+
+    .result-stats {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
+    .r-stat {
+      background: var(--gray-50);
+      border-radius: 12px;
+      padding: 14px;
+      text-align: center;
+    }
+
+    .r-stat h4 {
+      font-size: 20px;
+      font-weight: 800;
+      color: var(--gray-900);
+    }
+
+    .r-stat p {
+      font-size: 11px;
+      color: var(--gray-400);
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-top: 2px;
+    }
+
+    .result-actions {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .btn-result {
+      width: 100%;
+      padding: 14px;
+      border-radius: 12px;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      border: none;
+      font-family: 'Inter', sans-serif;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: all 0.2s;
+    }
+
+    .btn-result-primary {
+      background: linear-gradient(135deg, var(--primary), var(--accent));
+      color: white;
+    }
+
+    .btn-result-outline {
+      background: white;
+      color: var(--primary);
+      border: 2px solid #e5e7eb;
+    }
+
+    .btn-result-green {
+      background: linear-gradient(135deg, var(--success), #059669);
+      color: white;
+    }
+
+    .btn-result:hover {
+      transform: translateY(-1px);
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- TOPBAR -->
+  <div class="topbar">
+    <div>
+      <h2 id="quiz-title">Loading...</h2>
+      <div class="q-counter" id="q-counter"></div>
+    </div>
+    <div class="topbar-right">
+      <div class="timer-wrap" id="timer-wrap">
+        <svg class="timer-svg" width="80" height="80" viewBox="0 0 80 80">
+          <defs>
+            <linearGradient id="timerGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" style="stop-color:#4f46e5" />
+              <stop offset="100%" style="stop-color:#7c3aed" />
+            </linearGradient>
+          </defs>
+          <circle class="timer-bg" cx="40" cy="40" r="34" />
+          <circle class="timer-fill" id="timer-ring" cx="40" cy="40" r="34" stroke="url(#timerGrad)"
+            stroke-dasharray="213.6" stroke-dashoffset="0" />
+        </svg>
+        <div class="timer-text"><span id="time-display">--:--</span><small>left</small></div>
+      </div>
+    </div>
+  </div>
+  <div class="progress-bar">
+    <div class="progress-fill" id="progress" style="width:0%"></div>
+  </div>
+
+  <!-- MAIN -->
+  <div class="container">
+    <div class="q-nav" id="q-nav"></div>
+    <div id="question-area" class="question-card">
+      <div style="text-align:center;padding:40px;color:var(--gray-400)"><i class="fas fa-spinner fa-spin"
+          style="font-size:28px"></i>
+        <p style="margin-top:12px">Loading quiz...</p>
+      </div>
+    </div>
+    <div class="nav-btns">
+      <button class="btn btn-outline" id="prev-btn" onclick="navigate(-1)" style="display:none"><i
+          class="fas fa-arrow-left"></i> Previous</button>
+      <div style="flex:1"></div>
+      <button class="btn btn-primary" id="next-btn" onclick="navigate(1)">Next <i
+          class="fas fa-arrow-right"></i></button>
+      <button class="btn btn-success" id="submit-btn" onclick="confirmSubmit()" style="display:none"><i
+          class="fas fa-paper-plane"></i> Submit Quiz</button>
+    </div>
+  </div>
+
+  <!-- RESULT OVERLAY -->
+  <div class="overlay" id="result-overlay">
+    <div class="result-modal">
+      <div class="result-top">
+        <div class="result-emoji" id="r-emoji">🎉</div>
+        <h2 id="r-title">Quiz Complete!</h2>
+        <p id="r-msg">Here are your results</p>
+        <div class="score-ring">
+          <svg width="140" height="140" viewBox="0 0 140 140">
+            <defs>
+              <linearGradient id="scoreGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" style="stop-color:#4f46e5" />
+                <stop offset="100%" style="stop-color:#10b981" />
+              </linearGradient>
+            </defs>
+            <circle class="ring-bg" cx="70" cy="70" r="58" />
+            <circle class="ring-fill" id="score-ring" cx="70" cy="70" r="58" stroke-dasharray="364.4"
+              stroke-dashoffset="364.4" />
+          </svg>
+          <div class="ring-text">
+            <h3 id="r-pct">0%</h3><small id="r-fraction">0/0</small>
+          </div>
+        </div>
+      </div>
+      <div class="result-bottom">
+        <div class="result-stats">
+          <div class="r-stat">
+            <h4 id="r-correct">0</h4>
+            <p>Correct</p>
+          </div>
+          <div class="r-stat">
+            <h4 id="r-wrong">0</h4>
+            <p>Wrong</p>
+          </div>
+          <div class="r-stat">
+            <h4 id="r-time">0s</h4>
+            <p>Time Left</p>
+          </div>
+        </div>
+        <div class="result-actions">
+          <button class="btn-result btn-result-primary" onclick="showReview()"><i class="fas fa-eye"></i> Review
+            Answers</button>
+          <button class="btn-result btn-result-green" id="cert-btn" onclick="openCertificate()" style="display:none"><i
+              class="fas fa-certificate"></i> Download Certificate</button>
+          <button class="btn-result btn-result-outline" onclick="window.location.href='results.html'"><i
+              class="fas fa-chart-bar"></i> View All Results</button>
+          <button class="btn-result btn-result-outline" onclick="window.location.href='dashboard.html'"><i
+              class="fas fa-home"></i> Back to Dashboard</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- REVIEW OVERLAY -->
+  <div class="overlay" id="review-overlay">
+    <div
+      style="background:white;border-radius:24px;max-width:700px;width:95%;max-height:85vh;overflow-y:auto;animation:popIn 0.4s cubic-bezier(0.175,0.885,0.32,1.275)">
+      <div
+        style="padding:28px 32px;border-bottom:2px solid var(--gray-100);display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;background:white;border-radius:24px 24px 0 0;z-index:1">
+        <h3 style="font-size:18px;font-weight:800;color:var(--gray-900)">📋 Answer Review</h3>
+        <button onclick="document.getElementById('review-overlay').classList.remove('show')"
+          style="background:var(--gray-100);border:none;width:36px;height:36px;border-radius:8px;cursor:pointer;font-size:16px">✕</button>
+      </div>
+      <div id="review-content" style="padding:24px 32px"></div>
+    </div>
+  </div>
+
+  <script>
+    const token = localStorage.getItem('token');
+    const user = JSON.parse(localStorage.getItem('user') || '{}');
+    const quizInfo = JSON.parse(localStorage.getItem('current-quiz') || '{}');
+    if (!token || !quizInfo.id) window.location.href = '/student/dashboard.html';
+
+    let questions = [], current = 0, answers = {}, timerInterval, totalSecs, secsLeft, submitData = null;
+    const circumference = 213.6;
+
+    document.getElementById('quiz-title').textContent = quizInfo.title || 'Quiz';
+
+    async function loadQuiz() {
+      const res = await fetch(`/api/quiz/${quizInfo.id}`, { headers: { Authorization: token } });
+      const data = await res.json();
+      questions = data.questions;
+      totalSecs = (quizInfo.duration || 2) * 60;
+      secsLeft = totalSecs;
+      renderNav(); renderQuestion(); startTimer();
+    }
+
+    function renderNav() {
+      document.getElementById('q-nav').innerHTML = questions.map((_, i) => `
+      <button class="q-btn ${i === current ? 'current' : ''} ${answers[questions[i].id] ? 'answered' : ''}" onclick="goTo(${i})">${i + 1}</button>`).join('');
+      document.getElementById('q-counter').textContent = `Question ${current + 1} of ${questions.length}`;
+      document.getElementById('progress').style.width = `${((current + 1) / questions.length) * 100}%`;
+    }
+
+    function renderQuestion() {
+      if (!questions.length) return;
+      const q = questions[current];
+      const opts = [['a', q.option_a], ['b', q.option_b], ['c', q.option_c], ['d', q.option_d]];
+      document.getElementById('question-area').innerHTML = `
+      <div class="q-header">
+        <div class="q-num-badge">${current + 1}</div>
+        <div class="q-text">${q.question_text}</div>
+      </div>
+      <div class="options">
+        ${opts.map(([v, t]) => `
+          <div class="option ${answers[q.id] === v ? 'selected' : ''}" onclick="selectAnswer('${v}')">
+            <div class="opt-letter">${v.toUpperCase()}</div>
+            <div class="opt-text">${t}</div>
+          </div>`).join('')}
+      </div>`;
+      document.getElementById('question-area').style.animation = 'none';
+      setTimeout(() => document.getElementById('question-area').style.animation = '', 10);
+      document.getElementById('prev-btn').style.display = current === 0 ? 'none' : 'flex';
+      document.getElementById('next-btn').style.display = current === questions.length - 1 ? 'none' : 'flex';
+      document.getElementById('submit-btn').style.display = current === questions.length - 1 ? 'flex' : 'none';
+    }
+
+    function selectAnswer(val) {
+      answers[questions[current].id] = val;
+      renderQuestion(); renderNav();
+    }
+
+    function navigate(dir) { goTo(current + dir); }
+    function goTo(i) { if (i >= 0 && i < questions.length) { current = i; renderQuestion(); renderNav(); } }
+
+    function startTimer() {
+      const ring = document.getElementById('timer-ring');
+      timerInterval = setInterval(() => {
+        secsLeft--;
+        const m = Math.floor(secsLeft / 60).toString().padStart(2, '0');
+        const s = (secsLeft % 60).toString().padStart(2, '0');
+        document.getElementById('time-display').textContent = `${m}:${s}`;
+        const offset = circumference * (1 - secsLeft / totalSecs);
+        ring.style.strokeDashoffset = offset;
+        if (secsLeft <= 30) {
+          document.getElementById('timer-wrap').classList.add('warning');
+          ring.style.stroke = '#ef4444';
+        }
+        if (secsLeft <= 0) { clearInterval(timerInterval); submitQuiz(); }
+      }, 1000);
+    }
+
+    function confirmSubmit() {
+      const unanswered = questions.length - Object.keys(answers).length;
+      if (unanswered > 0) {
+        if (!confirm(`You have ${unanswered} unanswered question(s). Submit anyway?`)) return;
+      }
+      submitQuiz();
+    }
+
+    async function submitQuiz() {
+      clearInterval(timerInterval);
+      try {
+        const res = await fetch('/api/quiz/submit', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', Authorization: token },
+          body: JSON.stringify({ quiz_id: quizInfo.id, answers })
+        });
+        submitData = await res.json();
+        showResult(submitData);
+      } catch (err) { alert('Error submitting. Please try again.'); }
+    }
+
+    function showResult(data) {
+      const pct = parseFloat(data.percentage);
+      const correct = data.score;
+      const wrong = data.total_marks - data.score;
+
+      document.getElementById('r-emoji').textContent = pct >= 70 ? '🏆' : pct >= 40 ? '👍' : '📚';
+      document.getElementById('r-title').textContent = pct >= 70 ? 'Excellent Work!' : pct >= 40 ? 'Good Effort!' : 'Keep Practicing!';
+      document.getElementById('r-msg').textContent = pct >= 70 ? 'You passed with flying colors!' : pct >= 40 ? 'You passed the quiz!' : 'Review the material and try again.';
+      document.getElementById('r-pct').textContent = data.percentage;
+      document.getElementById('r-fraction').textContent = `${data.score} / ${data.total_marks}`;
+      document.getElementById('r-correct').textContent = correct;
+      document.getElementById('r-wrong').textContent = wrong;
+      document.getElementById('r-time').textContent = secsLeft + 's';
+
+      // Show certificate button if passed
+      if (pct >= 70) document.getElementById('cert-btn').style.display = 'flex';
+
+      // Animate ring
+      setTimeout(() => {
+        const ring = document.getElementById('score-ring');
+        const circ = 364.4;
+        ring.style.strokeDashoffset = circ - (circ * pct / 100);
+      }, 500);
+
+      document.getElementById('result-overlay').classList.add('show');
+    }
+
+    function showReview() {
+      document.getElementById('review-overlay').classList.add('show');
+      const content = document.getElementById('review-content');
+      content.innerHTML = questions.map((q, i) => {
+        const userAns = answers[q.id];
+        const correct = q.correct_option;
+        const opts = [['a', q.option_a], ['b', q.option_b], ['c', q.option_c], ['d', q.option_d]];
+        const isCorrect = userAns === correct;
+        return `
+        <div style="margin-bottom:24px;padding:20px;border-radius:14px;border:2px solid ${isCorrect ? '#bbf7d0' : '#fecaca'};background:${isCorrect ? '#f0fdf4' : '#fef2f2'}">
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px">
+            <div style="width:32px;height:32px;border-radius:8px;background:${isCorrect ? '#10b981' : '#ef4444'};display:flex;align-items:center;justify-content:center;color:white;font-weight:800;font-size:13px;flex-shrink:0">${i + 1}</div>
+            <p style="font-size:15px;font-weight:600;color:var(--gray-900)">${q.question_text}</p>
+          </div>
+          ${opts.map(([v, t]) => `
+            <div style="display:flex;align-items:center;gap:10px;padding:10px 14px;border-radius:10px;margin-bottom:6px;background:${v === correct ? 'rgba(16,185,129,0.1)' : v === userAns && userAns !== correct ? 'rgba(239,68,68,0.1)' : 'transparent'};border:1px solid ${v === correct ? '#10b981' : v === userAns && userAns !== correct ? '#ef4444' : 'transparent'}">
+              <div style="width:26px;height:26px;border-radius:6px;background:${v === correct ? '#10b981' : v === userAns && userAns !== correct ? '#ef4444' : 'var(--gray-200)'};display:flex;align-items:center;justify-content:center;color:${v === correct || v === userAns ? 'white' : 'var(--gray-600)'};font-weight:700;font-size:12px;flex-shrink:0">${v.toUpperCase()}</div>
+              <span style="font-size:14px;color:var(--gray-700)">${t}</span>
+              ${v === correct ? '<span style="margin-left:auto;font-size:12px;font-weight:700;color:#10b981">✓ Correct</span>' : ''}
+              ${v === userAns && v !== correct ? '<span style="margin-left:auto;font-size:12px;font-weight:700;color:#ef4444">✗ Your answer</span>' : ''}
+            </div>`).join('')}
+          ${!userAns ? '<p style="font-size:12px;color:var(--gray-400);margin-top:8px"><i class="fas fa-exclamation-circle"></i> Not answered</p>' : ''}
+        </div>`;
+      }).join('');
+    }
+
+    function openCertificate() {
+      localStorage.setItem('cert-data', JSON.stringify({
+        studentName: user.name,
+        quizTitle: quizInfo.title,
+        score: submitData.score,
+        total: submitData.total_marks,
+        percentage: submitData.percentage,
+        date: new Date().toLocaleDateString('en-PK', { day: 'numeric', month: 'long', year: 'numeric' })
+      }));
+      window.open('/student/certificate.html', '_blank');
+    }
+
+    loadQuiz();
+  </script>
+</body>
+
+</html>

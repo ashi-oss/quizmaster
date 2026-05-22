@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>QuizMaster — Certificate</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Playfair+Display:wght@700;800&display=swap"
+        rel="stylesheet" />
+    <style>
+        *,
+        *::before,
+        *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #1a1a2e;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 40px 20px;
+        }
+
+        .controls {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 28px;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            border: none;
+            font-family: 'Inter', sans-serif;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #4f46e5, #7c3aed);
+            color: white;
+        }
+
+        .btn-outline {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+
+        /* CERTIFICATE */
+        #certificate {
+            width: 900px;
+            background: white;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 40px 100px rgba(0, 0, 0, 0.5);
+        }
+
+        .cert-outer {
+            padding: 12px;
+            background: linear-gradient(135deg, #4f46e5, #7c3aed, #10b981, #4f46e5);
+            background-size: 300% 300%;
+            animation: gradientShift 4s ease infinite;
+        }
+
+        @keyframes gradientShift {
+            0% {
+                background-position: 0% 50%
+            }
+
+            50% {
+                background-position: 100% 50%
+            }
+
+            100% {
+                background-position: 0% 50%
+            }
+        }
+
+        .cert-inner {
+            background: white;
+            padding: 60px 70px;
+            position: relative;
+        }
+
+        .cert-watermark {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 200px;
+            opacity: 0.025;
+            font-weight: 900;
+            color: #4f46e5;
+            pointer-events: none;
+            font-family: 'Playfair Display', serif;
+        }
+
+        .cert-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 40px;
+        }
+
+        .cert-logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .cert-logo-icon {
+            width: 52px;
+            height: 52px;
+            background: linear-gradient(135deg, #4f46e5, #7c3aed);
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+        }
+
+        .cert-logo-text h3 {
+            font-size: 18px;
+            font-weight: 800;
+            color: #111827;
+        }
+
+        .cert-logo-text p {
+            font-size: 12px;
+            color: #9ca3af;
+        }
+
+        .cert-uni {
+            text-align: right;
+        }
+
+        .cert-uni h4 {
+            font-size: 13px;
+            font-weight: 700;
+            color: #4f46e5;
+        }
+
+        .cert-uni p {
+            font-size: 12px;
+            color: #9ca3af;
+        }
+
+        .cert-divider {
+            height: 2px;
+            background: linear-gradient(90deg, #4f46e5, #7c3aed, #10b981);
+            border-radius: 2px;
+            margin-bottom: 40px;
+        }
+
+        .cert-title-row {
+            text-align: center;
+            margin-bottom: 28px;
+        }
+
+        .cert-title-row .cert-label {
+            font-size: 13px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 4px;
+            color: #9ca3af;
+            margin-bottom: 10px;
+        }
+
+        .cert-title-row h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 44px;
+            font-weight: 800;
+            color: #111827;
+            letter-spacing: -1px;
+        }
+
+        .cert-body {
+            text-align: center;
+            margin-bottom: 36px;
+        }
+
+        .cert-body p {
+            font-size: 16px;
+            color: #6b7280;
+            line-height: 1.6;
+            margin-bottom: 8px;
+        }
+
+        .cert-name {
+            font-family: 'Playfair Display', serif;
+            font-size: 48px;
+            font-weight: 700;
+            background: linear-gradient(135deg, #4f46e5, #7c3aed);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin: 16px 0;
+            display: block;
+        }
+
+        .cert-subject {
+            font-size: 22px;
+            font-weight: 700;
+            color: #111827;
+            margin: 8px 0;
+        }
+
+        .cert-score-row {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            margin: 32px 0;
+        }
+
+        .cert-score-item {
+            text-align: center;
+            padding: 20px 30px;
+            background: linear-gradient(135deg, #f5f3ff, #ede9fe);
+            border-radius: 16px;
+            border: 2px solid #ddd6fe;
+        }
+
+        .cert-score-item h3 {
+            font-size: 32px;
+            font-weight: 900;
+            color: #4f46e5;
+        }
+
+        .cert-score-item p {
+            font-size: 12px;
+            color: #7c3aed;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-top: 4px;
+        }
+
+        .cert-footer {
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-between;
+            margin-top: 40px;
+            padding-top: 28px;
+            border-top: 1px solid #f3f4f6;
+        }
+
+        .cert-sign {
+            text-align: center;
+        }
+
+        .cert-sign-line {
+            width: 160px;
+            height: 2px;
+            background: #e5e7eb;
+            margin: 0 auto 8px;
+        }
+
+        .cert-sign p {
+            font-size: 12px;
+            color: #9ca3af;
+            font-weight: 500;
+        }
+
+        .cert-sign h4 {
+            font-size: 14px;
+            font-weight: 700;
+            color: #374151;
+        }
+
+        .cert-badge {
+            text-align: center;
+        }
+
+        .cert-badge-circle {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #4f46e5, #7c3aed);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 8px;
+            font-size: 32px;
+            box-shadow: 0 8px 20px rgba(79, 70, 229, 0.3);
+        }
+
+        .cert-badge p {
+            font-size: 11px;
+            color: #9ca3af;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .cert-date {
+            font-size: 13px;
+            color: #9ca3af;
+            margin-top: 4px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="controls">
+        <button class="btn btn-primary" onclick="downloadCert()"><i class="fas fa-download"></i> Download PDF</button>
+        <button class="btn btn-outline" onclick="window.print()"><i class="fas fa-print"></i> Print</button>
+        <button class="btn btn-outline" onclick="window.close()"><i class="fas fa-times"></i> Close</button>
+    </div>
+
+    <div id="certificate">
+        <div class="cert-outer">
+            <div class="cert-inner">
+                <div class="cert-watermark">✓</div>
+                <div class="cert-header">
+                    <div class="cert-logo">
+                        <div class="cert-logo-icon">🎓</div>
+                        <div class="cert-logo-text">
+                            <h3>QuizMaster</h3>
+                            <p>Online Testing System</p>
+                        </div>
+                    </div>
+                    <div class="cert-uni">
+                        <h4>Air University Islamabad</h4>
+                        <p>Department of Computer Science</p>
+                        <p>ADS CS Program</p>
+                    </div>
+                </div>
+                <div class="cert-divider"></div>
+                <div class="cert-title-row">
+                    <div class="cert-label">Certificate of Achievement</div>
+                    <h1>Certificate of Excellence</h1>
+                </div>
+                <div class="cert-body">
+                    <p>This is to certify that</p>
+                    <span class="cert-name" id="cert-name">Student Name</span>
+                    <p>has successfully completed the quiz on</p>
+                    <div class="cert-subject" id="cert-subject">Subject Name</div>
+                    <p>with outstanding performance</p>
+                </div>
+                <div class="cert-score-row">
+                    <div class="cert-score-item">
+                        <h3 id="cert-score">0/0</h3>
+                        <p>Score</p>
+                    </div>
+                    <div class="cert-score-item">
+                        <h3 id="cert-pct">0%</h3>
+                        <p>Percentage</p>
+                    </div>
+                    <div class="cert-score-item">
+                        <h3>PASS</h3>
+                        <p>Status</p>
+                    </div>
+                </div>
+                <div class="cert-footer">
+                    <div class="cert-sign">
+                        <div class="cert-sign-line"></div>
+                        <h4>Muhammad Afzal</h4>
+                        <p>Project Lead</p>
+                    </div>
+                    <div class="cert-badge">
+                        <div class="cert-badge-circle">🏆</div>
+                        <p>Verified</p>
+                        <div class="cert-date" id="cert-date"></div>
+                    </div>
+                    <div class="cert-sign">
+                        <div class="cert-sign-line"></div>
+                        <h4>Air University</h4>
+                        <p>Islamabad, Pakistan</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script>
+        const data = JSON.parse(localStorage.getItem('cert-data') || '{}');
+        document.getElementById('cert-name').textContent = data.studentName || 'Student';
+        document.getElementById('cert-subject').textContent = data.quizTitle || 'Quiz';
+        document.getElementById('cert-score').textContent = `${data.score}/${data.total}`;
+        document.getElementById('cert-pct').textContent = data.percentage;
+        document.getElementById('cert-date').textContent = data.date || new Date().toLocaleDateString();
+
+        async function downloadCert() {
+            const { jsPDF } = window.jspdf;
+            const canvas = await html2canvas(document.getElementById('certificate'), { scale: 2, useCORS: true });
+            const imgData = canvas.toDataURL('image/png');
+            const pdf = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' });
+            pdf.addImage(imgData, 'PNG', 0, 0, 297, 210);
+            pdf.save(`QuizMaster_Certificate_${data.studentName || 'Student'}.pdf`);
+        }
+    </script>
+</body>
+
+</html>

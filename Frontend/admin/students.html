@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>QuizMaster — Students</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet" />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" />
+    <style>
+        *,
+        *::before,
+        *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #4f46e5;
+            --accent: #7c3aed;
+            --success: #10b981;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --gray-50: #f9fafb;
+            --gray-100: #f3f4f6;
+            --gray-200: #e5e7eb;
+            --gray-400: #9ca3af;
+            --gray-600: #4b5563;
+            --gray-900: #111827;
+            --sidebar: #1e1b4b;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--gray-100);
+            display: flex;
+            min-height: 100vh;
+        }
+
+        .sidebar {
+            width: 260px;
+            background: var(--sidebar);
+            display: flex;
+            flex-direction: column;
+            position: fixed;
+            height: 100vh;
+        }
+
+        .sidebar-brand {
+            padding: 28px 24px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .sidebar-brand h2 {
+            color: white;
+            font-size: 22px;
+            font-weight: 800;
+        }
+
+        .sidebar-brand p {
+            color: rgba(255, 255, 255, 0.4);
+            font-size: 12px;
+        }
+
+        .sidebar-nav {
+            padding: 20px 12px;
+            flex: 1;
+        }
+
+        .nav-label {
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: rgba(255, 255, 255, 0.3);
+            padding: 0 12px;
+            margin-bottom: 8px;
+            margin-top: 16px;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            border-radius: 10px;
+            color: rgba(255, 255, 255, 0.6);
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.2s;
+            margin-bottom: 4px;
+            cursor: pointer;
+        }
+
+        .nav-item:hover {
+            background: rgba(255, 255, 255, 0.08);
+            color: white;
+        }
+
+        .nav-item.active {
+            background: var(--primary);
+            color: white;
+        }
+
+        .nav-item i {
+            width: 20px;
+            text-align: center;
+        }
+
+        .sidebar-footer {
+            padding: 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .logout-btn {
+            width: 100%;
+            padding: 10px;
+            background: rgba(239, 68, 68, 0.15);
+            color: #fca5a5;
+            border: 1px solid rgba(239, 68, 68, 0.2);
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .main {
+            margin-left: 260px;
+            flex: 1;
+            padding: 32px;
+        }
+
+        .topbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 28px;
+        }
+
+        .topbar h1 {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--gray-900);
+        }
+
+        .topbar p {
+            color: var(--gray-400);
+            font-size: 14px;
+            margin-top: 2px;
+        }
+
+        .stats-row {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+            margin-bottom: 28px;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 14px;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+        }
+
+        .stat-icon {
+            width: 46px;
+            height: 46px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+        }
+
+        .stat-icon.purple {
+            background: #ede9fe;
+            color: var(--primary);
+        }
+
+        .stat-icon.green {
+            background: #d1fae5;
+            color: var(--success);
+        }
+
+        .stat-icon.orange {
+            background: #fef3c7;
+            color: var(--warning);
+        }
+
+        .stat-info p {
+            font-size: 12px;
+            color: var(--gray-400);
+            font-weight: 500;
+        }
+
+        .stat-info h3 {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--gray-900);
+        }
+
+        .card {
+            background: white;
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+        }
+
+        .search-wrapper {
+            position: relative;
+            margin-bottom: 24px;
+        }
+
+        .search-wrapper i {
+            position: absolute;
+            left: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--gray-400);
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 12px 16px 12px 42px;
+            border: 2px solid var(--gray-200);
+            border-radius: 10px;
+            font-size: 14px;
+            font-family: 'Inter', sans-serif;
+            outline: none;
+            background: var(--gray-50);
+        }
+
+        .search-input:focus {
+            border-color: var(--primary);
+            background: white;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
+            text-align: left;
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--gray-400);
+            padding: 12px 16px;
+            border-bottom: 2px solid var(--gray-100);
+        }
+
+        td {
+            padding: 14px 16px;
+            border-bottom: 1px solid var(--gray-100);
+            font-size: 14px;
+            color: var(--gray-600);
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        tr:hover td {
+            background: var(--gray-50);
+        }
+
+        .student-cell {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .avatar {
+            width: 38px;
+            height: 38px;
+            border-radius: 10px;
+            background: #ede9fe;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 14px;
+            flex-shrink: 0;
+        }
+
+        .student-name {
+            font-weight: 600;
+            color: var(--gray-900);
+            font-size: 14px;
+        }
+
+        .student-email {
+            font-size: 12px;
+            color: var(--gray-400);
+        }
+
+        .badge {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .badge-green {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .badge-gray {
+            background: var(--gray-100);
+            color: var(--gray-600);
+        }
+
+        .score-bar-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .score-bar {
+            flex: 1;
+            height: 6px;
+            background: var(--gray-200);
+            border-radius: 3px;
+            max-width: 100px;
+        }
+
+        .score-fill {
+            height: 100%;
+            border-radius: 3px;
+            background: linear-gradient(90deg, var(--primary), var(--accent));
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px;
+            color: var(--gray-400);
+        }
+
+        .empty-state i {
+            font-size: 48px;
+            margin-bottom: 16px;
+            display: block;
+            opacity: 0.3;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="sidebar">
+        <div class="sidebar-brand">
+            <h2>⚡ QuizMaster</h2>
+            <p>Admin Panel</p>
+        </div>
+        <nav class="sidebar-nav">
+            <div class="nav-label">Main</div>
+            <a href="dashboard.html" class="nav-item"><i class="fas fa-home"></i> Dashboard</a>
+            <a href="create-quiz.html" class="nav-item"><i class="fas fa-plus-circle"></i> Create Quiz</a>
+            <a href="results.html" class="nav-item"><i class="fas fa-chart-bar"></i> All Results</a>
+            <div class="nav-label">System</div>
+            <div class="nav-item active"><i class="fas fa-users"></i> Students</div>
+            <a href="settings.html" class="nav-item"><i class="fas fa-cog"></i> Settings</a>
+        </nav>
+        <div class="sidebar-footer">
+            <button class="logout-btn" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Logout</button>
+        </div>
+    </div>
+
+    <main class="main">
+        <div class="topbar">
+            <div>
+                <h1>Students</h1>
+                <p id="student-count">Loading...</p>
+            </div>
+        </div>
+
+        <div class="stats-row">
+            <div class="stat-card">
+                <div class="stat-icon purple"><i class="fas fa-users"></i></div>
+                <div class="stat-info">
+                    <p>Total Students</p>
+                    <h3 id="total-students">0</h3>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon green"><i class="fas fa-check-circle"></i></div>
+                <div class="stat-info">
+                    <p>Active (Took Quiz)</p>
+                    <h3 id="active-students">0</h3>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon orange"><i class="fas fa-chart-line"></i></div>
+                <div class="stat-info">
+                    <p>Avg. Class Score</p>
+                    <h3 id="class-avg">—</h3>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="search-wrapper">
+                <i class="fas fa-search"></i>
+                <input class="search-input" type="text" id="search" placeholder="Search students by name or email..."
+                    oninput="filterStudents()" />
+            </div>
+            <div id="table-container">
+                <div class="empty-state"><i class="fas fa-spinner fa-spin"></i>
+                    <p>Loading students...</p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        const token = localStorage.getItem('token');
+        const user = JSON.parse(localStorage.getItem('user') || '{}');
+        if (!token || user.role !== 'admin') window.location.href = '/login.html';
+
+        let allStudents = [];
+
+        function renderTable(students) {
+            const container = document.getElementById('table-container');
+            if (!students.length) {
+                container.innerHTML = '<div class="empty-state"><i class="fas fa-users"></i><p>No students found</p></div>';
+                return;
+            }
+            container.innerHTML = `
+        <table>
+          <thead>
+            <tr>
+              <th>Student</th>
+              <th>Quizzes Taken</th>
+              <th>Avg Score</th>
+              <th>Best Score</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${students.map(s => {
+                const avg = s.average_score ? parseFloat(s.average_score).toFixed(0) : 0;
+                const best = s.best_score || 0;
+                const taken = s.total_quizzes_taken || 0;
+                return `<tr>
+                <td>
+                  <div class="student-cell">
+                    <div class="avatar">${(s.name || 'S')[0].toUpperCase()}</div>
+                    <div>
+                      <div class="student-name">${s.name}</div>
+                      <div class="student-email">${s.email}</div>
+                    </div>
+                  </div>
+                </td>
+                <td>${taken}</td>
+                <td>
+                  <div class="score-bar-wrapper">
+                    <div class="score-bar"><div class="score-fill" style="width:${avg}%"></div></div>
+                    <span>${avg}%</span>
+                  </div>
+                </td>
+                <td>${best}%</td>
+                <td><span class="badge ${taken > 0 ? 'badge-green' : 'badge-gray'}">${taken > 0 ? 'Active' : 'Inactive'}</span></td>
+              </tr>`;
+            }).join('')}
+          </tbody>
+        </table>`;
+        }
+
+        function filterStudents() {
+            const q = document.getElementById('search').value.toLowerCase();
+            renderTable(allStudents.filter(s =>
+                s.name.toLowerCase().includes(q) || s.email.toLowerCase().includes(q)
+            ));
+        }
+
+        async function loadStudents() {
+            try {
+                const res = await fetch('/api/auth/students', { headers: { 'Authorization': token } });
+                allStudents = await res.json();
+
+                document.getElementById('total-students').textContent = allStudents.length;
+                document.getElementById('student-count').textContent = `${allStudents.length} registered students`;
+
+                const active = allStudents.filter(s => s.total_quizzes_taken > 0);
+                document.getElementById('active-students').textContent = active.length;
+
+                if (active.length) {
+                    const avg = active.reduce((sum, s) => sum + parseFloat(s.average_score || 0), 0) / active.length;
+                    document.getElementById('class-avg').textContent = avg.toFixed(0) + '%';
+                }
+
+                renderTable(allStudents);
+            } catch (err) {
+                document.getElementById('table-container').innerHTML = '<div class="empty-state"><i class="fas fa-exclamation-circle"></i><p>Failed to load students</p></div>';
+            }
+        }
+
+        function logout() { localStorage.clear(); window.location.href = '/login.html'; }
+        loadStudents();
+    </script>
+</body>
+
+</html>
